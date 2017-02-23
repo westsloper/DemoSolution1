@@ -1,0 +1,51 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_ChatLayout1.cshtml";
+}
+
+<style type="text/css">
+    ul li {
+        list-style-type:none;
+    }
+
+        ul li div {
+            height:20px;
+            line-height:20px;
+            display:inline-block;
+        }
+</style>
+<div>
+    <input type="text" id="message" />
+    <input type="button" id="sendBtn" value="send" />
+    <ul id="dialogContent">
+    </ul>
+</div>
+<script type="text/javascript">
+    function displayMessage(name, message){
+        var $li = $('<li/>'),
+            $container = $('<div/>');
+        $li.append($container);
+        var $nameSpan = $('<div/>'),
+            $msgSpan = $('<div/>');
+        $nameSpan.html(name).width(100);
+        $msgSpan.html(message);
+        $container.append($nameSpan).append($msgSpan);
+        $('#dialogContent').append($li);
+    }
+
+    $(function () {
+        var chat = $.connection.chat;
+        if (chat !== undefined && chat !== null) {
+            chat.client.addMessage = function (name, message) {
+                displayMessage(name, message);
+            }
+            $.connection.hub.start().done(function () {
+                $('#sendBtn').click(function () {
+                    var $message = $('#message');
+                    var msg = $message.val();
+                    chat.server.sendToAll(msg);
+                });
+            });
+        }
+    });
+</script>
